@@ -38,11 +38,18 @@
 
       <div class="action-view-right">
         <div class="job-info-header">
-          <div class="job-info-header-title">
-            {{ currentJob.title }}
+          <div class="job-info-header-name">
+            <div class="job-info-header-title">
+              {{ currentJob.title }}
+            </div>
+            <div class="job-info-header-detail">
+              {{ currentJob.detail }}
+            </div>
           </div>
-          <div class="job-info-header-detail">
-            {{ currentJob.detail }}
+          <div class="job-info-header-props">
+            <a class="job-brief-link" :href="run.link+'/jobs/'+jobIndex+'/logs'" target="_blank">
+              <SvgIcon name="octicon-download" size="20" class="ui text" />
+            </a>
           </div>
         </div>
         <div class="job-step-container">
@@ -407,14 +414,28 @@ export function initRepositoryActionView() {
   flex-direction: column;
 }
 
+.job-info-header {
+  padding: 10px;
+  border-bottom: 1px solid var(--color-grey);
+  display: flex;
+  flex-direction: row;
+}
+
+.job-info-header .job-info-header-name {
+  flex: 1;
+}
+
+.job-info-header .job-info-header-props {
+  margin: 0 15px 0 25px;
+  align-self: center;
+}
+
 .job-info-header .job-info-header-title {
   font-size: 150%;
-  padding: 10px;
+  margin: 0 0 10px;
 }
 
 .job-info-header .job-info-header-detail {
-  padding: 0 10px 10px;
-  border-bottom: 1px solid var(--color-grey);
 }
 
 .job-step-container {

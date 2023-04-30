@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -219,6 +220,49 @@ func Rerun(ctx *context_module.Context) {
 	actions_service.CreateCommitStatus(ctx, job)
 
 	ctx.JSON(http.StatusOK, struct{}{})
+}
+
+func Logs(ctx *context_module.Context) {
+	runIndex := ctx.ParamsInt64("run")
+	jobIndex := ctx.ParamsInt64("job")
+
+	job, _ := getRunJobs(ctx, runIndex, jobIndex)
+	if ctx.Written() {
+		return
+	}
+	if job.TaskID == 0 {
+		ctx.Error(http.StatusNotFound, "job is not started")
+		return
+	}
+
+	task, err := actions_model.GetTaskByID(ctx, job.TaskID)
+	if err != nil {
+		ctx.Error(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	reader, err := actions.OpenLogs(ctx, task.LogInStorage, task.LogFilename)
+	if err != nil {
+		ctx.Error(http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer reader.Close()
+
+	opts := &context_module.ServeHeaderOptions{
+		Filename: job.Name+".txt",
+		ContentLength: &task.LogSize,
+		ContentType: "text/plain",
+		ContentTypeCharset: "utf-8",
+		Disposition: "attachment",
+	}
+
+	ctx.SetServeHeaders(opts)
+
+	_, err = io.Copy(ctx.Resp, reader)
+	if err != nil {
+		ctx.ServerError("Write", err)
+		return
+	}
 }
 
 func Cancel(ctx *context_module.Context) {
