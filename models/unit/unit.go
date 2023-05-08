@@ -316,7 +316,7 @@ var (
 		"/actions",
 		"actions.unit.desc",
 		7,
-		perm.AccessModeOwner,
+		perm.AccessModeAdmin,
 	}
 
 	// Units contains all the units
